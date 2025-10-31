@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎃 Haunted Halloween House 🎃</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(#000000, #1a0000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: "Creepster", cursive;
+      overflow: hidden;
+    }
+
+    h1 {
+      position: absolute;
+      top: 20px;
+      text-shadow: 0 0 20px orange;
+      animation: flicker 2s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0.2;
+      }
+    }
+
+    .house {
+      width: 250px;
+      height: 250px;
+      background: url('https://i.ibb.co/ZhN3rps/haunted-house.png') no-repeat center/contain;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .house:hover {
+      transform: scale(1.1);
+      filter: brightness(1.2);
+    }
+
+    .message {
+      display: none;
+      font-size: 1.5em;
+      text-align: center;
+      text-shadow: 0 0 10px orange;
+    }
+
+    #treat {
+      color: #00ff99;
+    }
+
+    #trick {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click the Haunted House... if you dare 👻</h1>
+  <div class="house" onclick="playGame()"></div>
+  <div class="message" id="message"></div>
+
+  <script>
+    // Prevent multiple plays on same device
+    const played = localStorage.getItem("halloweenPlayed");
+
+    async function checkNetworkPlayed() {
+      // Get IP to limit by network (simple public API)
+      try {
+        const res = await fetch("https://api64.ipify.org?format=json");
+        const data = await res.json();
+        const ip = data.ip;
+        const playedIPs = JSON.parse(localStorage.getItem("playedIPs") || "[]");
+        if (playedIPs.includes(ip)) return true;
+        playedIPs.push(ip);
+        localStorage.setItem("playedIPs", JSON.stringify(playedIPs));
+        return false;
+      } catch {
+        return false;
+      }
+    }
+
+    async function playGame() {
+      const alreadyPlayed = await checkNetworkPlayed();
+      if (played || alreadyPlayed) {
+        alert("You’ve already played this game! 🎃");
+        return;
+      }
+
+      localStorage.setItem("halloweenPlayed", "true");
+
+      const chance = Math.random() * 100;
+      const message = document.getElementById("message");
+      message.style.display = "block";
+
+      if (chance <= 5) {
+        message.id = "treat";
+        message.textContent = "🎁 Treat! Please contact the owner (Cheet) to redeem your reward!";
+      } else {
+        message.id = "trick";
+        message.textContent = "💀 Trick! You’re not supposed to be here...";
+        setTimeout(() => {
+          window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // redirect (or kick)
+        }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>
